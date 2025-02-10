@@ -22,7 +22,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.AddEndPointEspecialidades();
 app.UseHttpsRedirection();
+
+app.AddEndPointCandidatura();
+app.AddEndPointClientes();
+app.AddEndPointContrato();
+app.AddEndPointProfissional();
+app.AddEndPointEspecialidades();
+app.AddEndPointProjetos();
+app.AddEndPointServico();
 
 app.Run();

@@ -20,11 +20,17 @@ public class FreelandoContext : DbContext
         }
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        //Aplica automaticamente as configurações de mapeamento para classes que implementam IEntityTypeConfiguration
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(FreelandoContext).Assembly);
+    }
+
     public DbSet<Candidatura> Candidaturas { get; set; }
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Contrato> Contratos { get; set; }
     public DbSet<Especialidade> Especialidades { get; set; }
-    public DbSet<Profissional> profissionais { get; set; }
+    public DbSet<Profissional> Profissionais { get; set; }
     public DbSet<Projeto> Projetos { get; set; }
     public DbSet<Servico> Servicos { get; set; }
 

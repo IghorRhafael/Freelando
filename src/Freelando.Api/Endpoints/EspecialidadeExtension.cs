@@ -1,5 +1,4 @@
-﻿
-using Freelando.Dados;
+﻿using Freelando.Dados;
 using Microsoft.EntityFrameworkCore;
 
 namespace Freelando.Api.Endpoints;
