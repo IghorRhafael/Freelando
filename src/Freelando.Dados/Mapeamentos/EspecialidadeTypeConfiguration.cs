@@ -1,6 +1,6 @@
 ﻿using Freelando.Modelo;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Freelando.Dados.Mapeamentos;
-
 internal class EspecialidadeTypeConfiguration : IEntityTypeConfiguration<Especialidade>
 {
     public void Configure(EntityTypeBuilder<Especialidade> entity)

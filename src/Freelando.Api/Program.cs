@@ -1,6 +1,8 @@
+using Freelando.Api.Converters;
 using Freelando.Api.Endpoints;
 using Freelando.Dados;
 using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,10 +10,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<FreelandoContext>(options =>
+builder.Services.AddDbContext<FreelandoContext>((options) =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]);
 });
+
+builder.Services.AddTransient<FreelandoContext>();
+builder.Services.AddTransient(typeof(CandidaturaConverter));
+builder.Services.AddTransient(typeof(ClienteConverter));
+builder.Services.AddTransient(typeof(ContratoConverter));
+builder.Services.AddTransient(typeof(EspecialidadeConverter));
+builder.Services.AddTransient(typeof(ProfissionalConverter));
+builder.Services.AddTransient(typeof(ProjetoConverter));
+builder.Services.AddTransient(typeof(ServicoConverter));
 
 var app = builder.Build();
 
@@ -22,14 +33,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.AddEndPointCandidatura();
 app.AddEndPointClientes();
 app.AddEndPointContrato();
 app.AddEndPointProfissional();
-app.AddEndPointEspecialidades();
-app.AddEndPointProjetos();
+app.AddEndPointEspecialidade();
+app.AddEndPointProjeto();
 app.AddEndPointServico();
+app.UseHttpsRedirection();
 
 app.Run();

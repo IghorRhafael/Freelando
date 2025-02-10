@@ -3,4 +3,4 @@ using Freelando.Modelo;
 
 namespace Freelando.Api.Requests;
 
-public record CandidaturaRequest(Guid Id, double? ValorProposto, string? DescricaoProposta, ProfissionalRequest? Profissional, ServicoRequest? Servico, string? DuracaoProposta, string? Status);
+public record CandidaturaRequest(Guid Id, double ValorProposto, string? DescricaoProposta, DuracaoEmDias? DuracaoProposta, StatusCandidatura? Status, ServicoRequest Servico);
