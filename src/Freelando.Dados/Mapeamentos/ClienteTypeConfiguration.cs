@@ -10,5 +10,6 @@ internal class ClienteTypeConfiguration : IEntityTypeConfiguration<Cliente>
         entity.ToTable("TB_Clientes");
 
         entity.Property(e => e.Id).HasColumnName("Id_Cliente");
+        entity.HasIndex(e => e.Email).IsUnique();
     }
 }

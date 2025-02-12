@@ -33,6 +33,13 @@ public static class ClienteExtension
             return Results.Ok(await Task.FromResult(clientes));
         }).WithTags("Cliente").WithOpenApi();
 
+        app.MapGet("/clientes/por-email", async ([FromServices] ClienteConverter converter, [FromServices] FreelandoContext contexto, string email) =>
+        {
+            var clientes = contexto.Clientes.Where(c => c.Email!.Equals(email)).ToList();
+
+            return Results.Ok(await Task.FromResult(clientes));
+        }).WithTags("Cliente").WithOpenApi();
+
         //retorna cliente por id
         app.MapGet("/cliente/{id}", async ([FromServices] ClienteConverter converter, [FromServices] FreelandoContext contexto, Guid id) =>
         {
@@ -47,6 +54,16 @@ public static class ClienteExtension
         //Cria um cliente
         app.MapPost("/cliente", async ([FromServices] ClienteConverter converter, [FromServices] FreelandoContext contexto, ClienteRequest clienteRequest) =>
         {
+            if(string.IsNullOrEmpty(clienteRequest.Email))
+            {
+                return Results.BadRequest("Email é obrigatório");
+            }
+
+            if (contexto.Clientes.Any(c => c.Email!.Equals(clienteRequest.Email)))
+            {
+                return Results.BadRequest("Email já cadastrado");
+            }
+
             var cliente = converter.RequestToEntity(clienteRequest);
             await contexto.Clientes.AddAsync(cliente);
             await contexto.SaveChangesAsync();
