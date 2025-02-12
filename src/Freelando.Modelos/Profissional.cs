@@ -29,6 +29,6 @@ public class Profissional
     public string? Telefone { get; set; }
     public ICollection<Contrato> Contratos { get; set; }
     public ICollection<Especialidade> Especialidades { get; set; }
-    public ICollection<ProfissionalEspecialidade> ProfissionaisEspecialidades { get; } = [];
+    public ICollection<ProfissionalEspecialidade> ProfissionaisEspecialidade { get; } = [];
 
 }

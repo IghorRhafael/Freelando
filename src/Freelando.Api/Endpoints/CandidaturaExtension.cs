@@ -8,7 +8,7 @@ namespace Freelando.Api.Endpoints;
 
 public static class CandidaturaExtension
 {
-    public static void AddEndPointCandidatura(this WebApplication app)
+    public static void AddEndPointCandidaturas(this WebApplication app)
     {
         //Retorna lista de candidaturas
         app.MapGet("/candidaturas", async ([FromServices] CandidaturaConverter converter, [FromServices] FreelandoContext contexto) =>

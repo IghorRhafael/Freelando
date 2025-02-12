@@ -16,7 +16,7 @@ public class ProfissionalConverter
             return new ProfissionalResponse(Guid.Empty, null, null, null, null, new List<EspecialidadeResponse>());
         }
 
-
+        
         return new ProfissionalResponse(profissional.Id, profissional.Nome, profissional.Cpf, profissional.Email, profissional.Telefone, _especialidadeConverter.EntityListToResponseList(profissional.Especialidades!));
     }
 

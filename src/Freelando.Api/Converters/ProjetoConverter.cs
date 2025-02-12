@@ -13,21 +13,21 @@ public class ProjetoConverter
     {
         _clienteConverter = new ClienteConverter();
         _especialidadeConverter = new EspecialidadeConverter();
-
+        
 
         return (projeto is null)
             ? new ProjetoResponse(Guid.Empty, "", "", StatusProjeto.Disponivel.ToString(), null, new List<EspecialidadeResponse>())
             : new ProjetoResponse(projeto.Id, projeto.Titulo, projeto.Descricao, projeto.Status.ToString(), _clienteConverter.EntityToResponse(projeto.Cliente), _especialidadeConverter.EntityListToResponseList(projeto.Especialidades!));
     }
 
-    public Projeto RequestToEntity(ProjetoRequest? projetoRequest)
+    public Projeto RequestToEntity(ProjetoRequest projetoRequest)
     {
         _especialidadeConverter = new EspecialidadeConverter();
         _servicoConverter = new ServicoConverter();
 
         return (projetoRequest is null)
             ? new Projeto(Guid.Empty, "", "", StatusProjeto.Disponivel, new Cliente(Guid.Empty, "", "", "", "", new List<Projeto>()), new List<Especialidade>(), new List<Servico>())
-            : new Projeto(projetoRequest.Id, projetoRequest.Titulo!, projetoRequest.Descricao!, projetoRequest.Status, new Cliente(), _especialidadeConverter.RequestListToEntityList(projetoRequest.Especialidades), new List<Servico>());
+            : new Projeto(projetoRequest.Id, projetoRequest.Titulo!, projetoRequest.Descricao!, projetoRequest.Status, new Cliente(), _especialidadeConverter.RequestListToEntityList(projetoRequest.Especialidades), null);
     }
 
     public ICollection<ProjetoResponse> EntityListToResponseList(IEnumerable<Projeto>? projetos)

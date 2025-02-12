@@ -22,14 +22,13 @@ public class ContratoConverter
     public Contrato RequestToEntity(ContratoRequest? contratoRequest)
     {
         _profissionalConverter = new ProfissionalConverter();
-        _servicoConverter = new ServicoConverter();
 
         if (contratoRequest == null)
         {
             return new Contrato(Guid.Empty, 0.0, null, null, null);
         }
 
-        return new Contrato(contratoRequest.Id, contratoRequest.Valor, contratoRequest.Vigencia, _servicoConverter.RequestToEntity(contratoRequest.Servico), _profissionalConverter.RequestToEntity(contratoRequest.Profissional));
+        return new Contrato(contratoRequest.Id, contratoRequest.Valor, contratoRequest.Vigencia, _servicoConverter.RequestToEntity(contratoRequest.Servico), _profissionalConverter.RequestToEntity(contratoRequest.profissional));
     }
 
     public ICollection<ContratoResponse> EntityListToResponseList(IEnumerable<Contrato> contratos)

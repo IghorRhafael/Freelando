@@ -3,6 +3,6 @@
 public enum StatusCandidatura
 {
     Aprovada,
-    Pendente,
-    Recusada
+    Recusada,
+    Pendente
 }

@@ -2,7 +2,7 @@ using Freelando.Api.Converters;
 using Freelando.Api.Endpoints;
 using Freelando.Dados;
 using Microsoft.EntityFrameworkCore;
-
+using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -24,7 +24,12 @@ builder.Services.AddTransient(typeof(ProfissionalConverter));
 builder.Services.AddTransient(typeof(ProjetoConverter));
 builder.Services.AddTransient(typeof(ServicoConverter));
 
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+builder.Services.AddCors();
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -33,13 +38,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.AddEndPointCandidatura();
+app.UseCors(options => { options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
+
+app.UseSwagger();
+
+app.AddEndPointCandidaturas();
 app.AddEndPointClientes();
-app.AddEndPointContrato();
-app.AddEndPointProfissional();
-app.AddEndPointEspecialidade();
-app.AddEndPointProjeto();
-app.AddEndPointServico();
+app.AddEndPointContratos();
+app.AddEndPointEspecialidades();
+app.AddEndPointProfissionais();
+app.AddEndPointProjetos();
+app.AddEndPointServicos();
+app.AddEndPointRelatorios();
 app.UseHttpsRedirection();
 
 app.Run();

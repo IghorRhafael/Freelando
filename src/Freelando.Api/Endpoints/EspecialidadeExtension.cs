@@ -11,7 +11,7 @@ namespace Freelando.Api.Endpoints;
 
 public static class EspecialidadeExtension
 {
-    public static void AddEndPointEspecialidade(this WebApplication app)
+    public static void AddEndPointEspecialidades(this WebApplication app)
     {
         //Retorna lista de especialidades
         app.MapGet("/especialidades", async ([FromServices] EspecialidadeConverter converter, [FromServices] FreelandoContext contexto) =>
@@ -23,7 +23,7 @@ public static class EspecialidadeExtension
         }).WithTags("Especialidade").WithOpenApi();
 
         //retorna especialidade por id
-        app.MapGet("/especialidadeByID/{id}", async ([FromServices] EspecialidadeConverter converter, [FromServices] FreelandoContext contexto, Guid id) =>
+        app.MapGet("/especialidade/ID/{id}", async ([FromServices] EspecialidadeConverter converter, [FromServices] FreelandoContext contexto, Guid id) =>
         {
             var especialidade = await contexto.Especialidades.FindAsync(id);
             if (especialidade is null)

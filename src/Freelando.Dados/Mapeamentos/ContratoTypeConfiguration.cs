@@ -31,6 +31,5 @@ internal class ContratoTypeConfiguration : IEntityTypeConfiguration<Contrato>
             .HasOne(e => e.Profissional)
             .WithMany(e => e.Contratos)
             .HasForeignKey(e => e.ProfissionalId);
-
     }
 }

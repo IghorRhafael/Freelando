@@ -21,8 +21,8 @@ internal class ProfissionalTypeConfiguration : IEntityTypeConfiguration<Profissi
             .HasMany(e => e.Especialidades)
             .WithMany(e => e.Profissionais)
             .UsingEntity<ProfissionalEspecialidade>(
-            l => l.HasOne<Especialidade>(e => e.Especialidade).WithMany(e => e.ProfissionaisEspecialidades).HasForeignKey(e => e.EspecialidadeId),
-            r => r.HasOne<Profissional>(e => e.Profissional).WithMany(e => e.ProfissionaisEspecialidades).HasForeignKey(e => e.ProfissionalId)
+            l => l.HasOne<Especialidade>(e => e.Especialidade).WithMany(e => e.ProfissionaisEspecialidade).HasForeignKey(e => e.EspecialidadeId),
+            r => r.HasOne<Profissional>(e => e.Profissional).WithMany(e => e.ProfissionaisEspecialidade).HasForeignKey(e => e.ProfissionalId)
             );
     }
 }

@@ -9,7 +9,7 @@ namespace Freelando.Api.Endpoints;
 
 public static class ProfissionalExtension
 {
-    public static void AddEndPointProfissional(this WebApplication app)
+    public static void AddEndPointProfissionais(this WebApplication app)
     {
         //Retorna lista de profissionais
         app.MapGet("/profissionais", async ([FromServices] ProfissionalConverter converter, [FromServices] FreelandoContext contexto) =>

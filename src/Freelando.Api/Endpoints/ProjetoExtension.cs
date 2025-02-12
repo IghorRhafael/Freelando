@@ -9,7 +9,7 @@ namespace Freelando.Api.Endpoints;
 
 public static class ProjetoExtension
 {
-    public static void AddEndPointProjeto(this WebApplication app)
+    public static void AddEndPointProjetos(this WebApplication app)
     {
         //Retorna lista de projetos
         app.MapGet("/projetos", async ([FromServices] ProjetoConverter converter, [FromServices] FreelandoContext contexto) =>

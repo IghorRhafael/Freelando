@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Freelando.Modelo;
@@ -24,14 +23,13 @@ public class Projeto
         Especialidades = especialidades;
         Servicos = servicos;
     }
-
+    
     public Guid Id { get; set; }
     public string? Titulo { get; set; }
-    public string? Descricao { get; set; }
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public  string? Descricao { get; set; }
     public StatusProjeto Status { get; set; }
     public Cliente? Cliente { get; set; }
     public ICollection<Especialidade> Especialidades { get; set; }
-    public ICollection<ProjetoEspecialidade> ProjetosEspecialidades { get; } = [];
+    public ICollection<ProjetoEspecialidade> ProjetosEspecialidade { get; } = [];
     public ICollection<Servico> Servicos { get; set; }
 }

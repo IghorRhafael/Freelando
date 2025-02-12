@@ -9,7 +9,7 @@ namespace Freelando.Api.Endpoints;
 
 public static class ServicoExtensions
 {
-    public static void AddEndPointServico(this WebApplication app)
+    public static void AddEndPointServicos(this WebApplication app)
     {
         //Retorna lista de servicos
         app.MapGet("/servicos", async ([FromServices] ServicoConverter converter, [FromServices] FreelandoContext contexto) =>

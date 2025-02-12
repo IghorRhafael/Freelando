@@ -15,7 +15,7 @@ public class CandidaturaConverter
             return new CandidaturaResponse(Guid.Empty, 0.0, "", DuracaoEmDias.DeQuinzeATrinta.ToString(), StatusCandidatura.Aprovada.ToString(), Guid.Empty);
         }
 
-        return new CandidaturaResponse(candidatura.Id, candidatura.ValorProposto, candidatura.DescricaoProposta, candidatura.DuracaoProposta.ToString(), candidatura.Status.ToString(), candidatura.ServicoId);
+        return new CandidaturaResponse(candidatura.Id, candidatura.ValorProposto, candidatura.DescricaoProposta,candidatura.DuracaoProposta.ToString(), candidatura.Status.ToString(), candidatura.ServicoId);
     }
 
     public Candidatura RequestToEntity(CandidaturaRequest? candidaturaRequest)
@@ -24,7 +24,7 @@ public class CandidaturaConverter
 
         if (candidaturaRequest == null)
         {
-            return new Candidatura(Guid.Empty, 0.0, null, DuracaoEmDias.MenosDeUm, StatusCandidatura.Aprovada, null);
+            return new Candidatura(Guid.Empty, 0.0, null,  DuracaoEmDias.MenosDeUm, StatusCandidatura.Aprovada, null);
         }
 
         return new Candidatura(candidaturaRequest.Id, candidaturaRequest.ValorProposto, candidaturaRequest.DescricaoProposta, candidaturaRequest.DuracaoProposta!.Value, candidaturaRequest.Status!.Value, _servicoConverter.RequestToEntity(candidaturaRequest.Servico));

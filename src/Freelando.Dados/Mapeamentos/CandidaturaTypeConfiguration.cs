@@ -24,6 +24,7 @@ internal class CandidaturaTypeConfiguration : IEntityTypeConfiguration<Candidatu
                 fromObj => fromObj.ToString(),
                 fromDb => (DuracaoEmDias)Enum.Parse(typeof(DuracaoEmDias), fromDb)
             );
+        
         entity
             .Property(e => e.Status)
             .HasConversion(
@@ -36,4 +37,5 @@ internal class CandidaturaTypeConfiguration : IEntityTypeConfiguration<Candidatu
             .WithMany(e => e.Candidaturas)
             .HasForeignKey(e => e.ServicoId);
     }
+
 }

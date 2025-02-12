@@ -8,7 +8,7 @@ namespace Freelando.Api.Endpoints;
 
 public static class ContratoExtension
 {
-    public static void AddEndPointContrato(this WebApplication app)
+    public static void AddEndPointContratos(this WebApplication app)
     {
         //Retorna lista de contratos
         app.MapGet("/contratos", async ([FromServices] ContratoConverter converter, [FromServices] FreelandoContext contexto) =>

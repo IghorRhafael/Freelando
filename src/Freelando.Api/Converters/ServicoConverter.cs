@@ -32,7 +32,6 @@ public class ServicoConverter
     public Servico RequestToEntity(ServicoRequest? servicoRequest)
     {
         _candidaturaConverter = new CandidaturaConverter();
-        _projetoConverter = new ProjetoConverter();
 
         if (servicoRequest == null)
         {
