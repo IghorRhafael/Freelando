@@ -32,10 +32,31 @@ public static class ContratoExtension
         //Cria um contrato
         app.MapPost("/contrato", async ([FromServices] ContratoConverter converter, [FromServices] FreelandoContext contexto, ContratoRequest contratoRequest) =>
         {
-            var contrato = converter.RequestToEntity(contratoRequest);
-            await contexto.Contratos.AddAsync(contrato);
-            await contexto.SaveChangesAsync();
-            return Results.Created($"/contrato/{contrato.Id}", contrato);
+            using var transaction = await contexto.Database.BeginTransactionAsync();
+            try
+            {
+                transaction.CreateSavepoint("SavePoint");
+
+                var contrato = converter.RequestToEntity(contratoRequest);
+                await contexto.Contratos.AddAsync(contrato);
+                await contexto.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return Results.Created($"/contrato/{contrato.Id}", contrato);
+            }
+            catch(DbUpdateConcurrencyException ex)
+            {
+                transaction.RollbackToSavepoint("SavePoint");
+                return Results.BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                transaction.RollbackToSavepoint("SavePoint");
+                return Results.BadRequest($"Problemas de simultaneidade {ex.Message}");
+            }
+
+            
         }).WithTags("Contrato").WithOpenApi();
 
         //Atualiza um contrato
