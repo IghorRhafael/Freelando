@@ -1,6 +1,7 @@
 ﻿using Freelando.Api.Requests;
 using Freelando.Api.Responses;
 using Freelando.Modelo;
+using Freelando.Modelos;
 
 namespace Freelando.Api.Converters;
 
@@ -16,8 +17,8 @@ public class ProjetoConverter
         
 
         return (projeto is null)
-            ? new ProjetoResponse(Guid.Empty, "", "", StatusProjeto.Disponivel.ToString(), null, new List<EspecialidadeResponse>())
-            : new ProjetoResponse(projeto.Id, projeto.Titulo, projeto.Descricao, projeto.Status.ToString(), _clienteConverter.EntityToResponse(projeto.Cliente), _especialidadeConverter.EntityListToResponseList(projeto.Especialidades!));
+            ? new ProjetoResponse(Guid.Empty, "", "", StatusProjeto.Disponivel.ToString(), null, new List<EspecialidadeResponse>(), new Vigencia())
+            : new ProjetoResponse(projeto.Id, projeto.Titulo, projeto.Descricao, projeto.Status.ToString(), _clienteConverter.EntityToResponse(projeto.Cliente), _especialidadeConverter.EntityListToResponseList(projeto.Especialidades!), projeto.Vigencia);
     }
 
     public Projeto RequestToEntity(ProjetoRequest projetoRequest)
@@ -26,8 +27,8 @@ public class ProjetoConverter
         _servicoConverter = new ServicoConverter();
 
         return (projetoRequest is null)
-            ? new Projeto(Guid.Empty, "", "", StatusProjeto.Disponivel, new Cliente(Guid.Empty, "", "", "", "", new List<Projeto>()), new List<Especialidade>(), new List<Servico>())
-            : new Projeto(projetoRequest.Id, projetoRequest.Titulo!, projetoRequest.Descricao!, projetoRequest.Status, new Cliente(), _especialidadeConverter.RequestListToEntityList(projetoRequest.Especialidades), null);
+            ? new Projeto(Guid.Empty, "", "", StatusProjeto.Disponivel, new Cliente(Guid.Empty, "", "", "", "", new List<Projeto>()), new List<Especialidade>(), new List<Servico>(), new Vigencia())
+            : new Projeto(projetoRequest.Id, projetoRequest.Titulo!, projetoRequest.Descricao!, projetoRequest.Status, new Cliente(), _especialidadeConverter.RequestListToEntityList(projetoRequest.Especialidades), null, projetoRequest.Vigencia);
     }
 
     public ICollection<ProjetoResponse> EntityListToResponseList(IEnumerable<Projeto>? projetos)
