@@ -1,11 +1,8 @@
-﻿
-using Freelando.Api.Converters;
+﻿using Freelando.Api.Converters;
 using Freelando.Api.Requests;
-using Freelando.Dados;
+using Freelando.Dados.UnitOfWork;
 using Freelando.Modelo;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Freelando.Api.Endpoints;
 
@@ -14,18 +11,17 @@ public static class EspecialidadeExtension
     public static void AddEndPointEspecialidades(this WebApplication app)
     {
         //Retorna lista de especialidades
-        app.MapGet("/especialidades", async ([FromServices] EspecialidadeConverter converter, [FromServices] FreelandoContext contexto) =>
+        app.MapGet("/especialidades", async ([FromServices] EspecialidadeConverter converter, [FromServices] IUnitOfWork unitOfWork) =>
         {
-            var especialidades = converter.EntityListToResponseList(contexto.Especialidades.ToList());
+            var especialidades = unitOfWork.EspecialidadeRepository.GetAll();
 
             return Results.Ok(await Task.FromResult(especialidades));
-
         }).WithTags("Especialidade").WithOpenApi();
 
         //retorna especialidade por id
-        app.MapGet("/especialidade/ID/{id}", async ([FromServices] EspecialidadeConverter converter, [FromServices] FreelandoContext contexto, Guid id) =>
+        app.MapGet("/especialidade/ID/{id}", async ([FromServices] EspecialidadeConverter converter, [FromServices] IUnitOfWork unitOfWork, Guid id) =>
         {
-            var especialidade = await contexto.Especialidades.FindAsync(id);
+            var especialidade = await unitOfWork.EspecialidadeRepository.GetById(e => e.Id == id);
             if (especialidade is null)
             {
                 return Results.NotFound();
@@ -33,35 +29,26 @@ public static class EspecialidadeExtension
             return Results.Ok(converter.EntityToResponse(especialidade));
         }).WithTags("Especialidade").WithOpenApi();
 
-        //retorna especialidade por id
-        app.MapGet("/especialidade/{letraInicial}", async ([FromServices] EspecialidadeConverter converter, [FromServices] FreelandoContext contexto, string letrainicial) =>
+        //retorna especialidade por descrição
+        app.MapGet("/especialidade/{letraInicial}", async ([FromServices] EspecialidadeConverter converter, [FromServices] IUnitOfWork unitOfWork, string letrainicial) =>
         {
-            
-            Expression<Func<Especialidade, bool>> filtro = null; // e => e.Descricao.StartsWith(letrainicial.ToUpper());
-
-            if (letrainicial.Length == 1)
+            if(string.IsNullOrEmpty(letrainicial) || letrainicial.Length > 1)
             {
-                filtro = e => e.Descricao.StartsWith(letrainicial.ToUpper());
+                return Results.BadRequest("A letra inicial deve ser informada e conter apenas um caractere");
             }
-            //else
-            //{
-            //    return Results.BadRequest("A letra inicial deve conter apenas um caractere");
-            //}
 
-            IQueryable<Especialidade> especialidades = contexto.Especialidades;
-            if (filtro != null)
+            var especialidade = unitOfWork.contexto.Especialidades.Where(e => e.Descricao!.StartsWith(letrainicial)).ToList();
+
+            if (especialidade is null)
             {
-                especialidades = contexto.Especialidades.Where(filtro);
+                return Results.NotFound();
             }
-            
-
-            return await especialidades.ToListAsync();
-
+            return Results.Ok(especialidade);
 
         }).WithTags("Especialidade").WithOpenApi();
 
         //Cria uma especialidade
-        app.MapPost("/especialidade", async ([FromServices] EspecialidadeConverter converter, [FromServices] FreelandoContext contexto, EspecialidadeRequest especialidadeRequest) =>
+        app.MapPost("/especialidade", async ([FromServices] EspecialidadeConverter converter, [FromServices] IUnitOfWork unitOfWork, EspecialidadeRequest especialidadeRequest) =>
         {
             var especialidade = converter.RequestToEntity(especialidadeRequest);
 
@@ -72,8 +59,8 @@ public static class EspecialidadeExtension
                 return Results.BadRequest("A descrição da especialidade não pode estar em branco e deve começar com letra maiúscula");
             }
 
-            await contexto.Especialidades.AddAsync(especialidade);
-            await contexto.SaveChangesAsync();
+            await unitOfWork.EspecialidadeRepository.Add(especialidade);
+            await unitOfWork.Commit();
 
             return Results.Created($"/especialidade/{especialidade.Id}", especialidade);
 
@@ -81,9 +68,9 @@ public static class EspecialidadeExtension
 
 
         //Atualiza uma especialidade
-        app.MapPut("/especialidade/{id}", async ([FromServices] EspecialidadeConverter converter, [FromServices] FreelandoContext contexto, Guid id, EspecialidadeRequest especialidadeRequest) =>
+        app.MapPut("/especialidade/{id}", async ([FromServices] EspecialidadeConverter converter, [FromServices] IUnitOfWork unitOfWork, Guid id, EspecialidadeRequest especialidadeRequest) =>
         {
-            var especialidade = await contexto.Especialidades.FindAsync(id);
+            var especialidade = await unitOfWork.EspecialidadeRepository.GetById(e => e.Id == id);
             if (especialidade is null)
             {
                 return Results.NotFound();
@@ -95,47 +82,36 @@ public static class EspecialidadeExtension
             especialidade.Projetos = especialidadeAtualizada.Projetos;
             especialidade.Profissionais = especialidadeAtualizada.Profissionais;
 
-            await contexto.SaveChangesAsync();
+            await unitOfWork.EspecialidadeRepository.Update(especialidade);
+            await unitOfWork.Commit();
 
             return Results.Ok(especialidade);
         }).WithTags("Especialidade").WithOpenApi();
 
-        //Deleta uma especialidade
-        //app.MapDelete("/especialidade/{id}", async ([FromServices] FreelandoContext contexto, Guid id) =>
-        //{
-        //    var especialidade = await contexto.Especialidades.FindAsync(id);
-        //    if (especialidade is null)
-        //    {
-        //        return Results.NotFound();
-        //    }
-
-        //    contexto.Especialidades.Remove(especialidade);
-        //    await contexto.SaveChangesAsync();
-        //    return Results.NoContent();
-
-        //}).WithTags("Especialidade").WithOpenApi();
-
         //Deleta uma especialidade com transaction
-        app.MapDelete("/especialidade/{id}", async ([FromServices] FreelandoContext contexto, Guid id) =>
+        app.MapDelete("/especialidade/{id}", async ([FromServices] IUnitOfWork unitOfWork, Guid id) =>
         {
-            using var transaction = await contexto.Database.BeginTransactionAsync();
-            try
+            using (var transaction = unitOfWork.contexto.Database.BeginTransaction())
             {
-                var especialidade = await contexto.Especialidades.FindAsync(id);
-                if (especialidade is null)
+                try
                 {
-                    return Results.NotFound();
+                    var especialidade = await unitOfWork.EspecialidadeRepository.GetById(e => e.Id == id);
+                    if (especialidade is null)
+                    {
+                        return Results.NotFound();
+                    }
+                    await unitOfWork.EspecialidadeRepository.Delete(especialidade);
+                    await unitOfWork.Commit();
+                    await transaction.CommitAsync();
+                    return Results.NoContent();
                 }
-                contexto.Especialidades.Remove(especialidade);
-                await contexto.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return Results.NoContent();
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return Results.BadRequest();
+                }
             }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-                return Results.BadRequest();
-            }
+
         }).WithTags("Especialidade").WithOpenApi();
 
     }

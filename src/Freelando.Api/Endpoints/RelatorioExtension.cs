@@ -22,16 +22,16 @@ public static class RelatorioExtension
         {
 
             var consulta = (from cliente in contexto.Clientes
-                            join projeto in contexto.Projetos on cliente.Id equals projeto.Cliente.Id
-                            where cliente.Nome.Contains(nomeCliente)
+                            join projeto in contexto.Projetos on cliente.Id equals projeto!.Cliente!.Id
+                            where cliente!.Nome!.Contains(nomeCliente)
                             select new ClienteProjetoResponse
                             {
                                 ID_Cliente = cliente.Id,
-                                Nome = cliente.Nome,
-                                Email = cliente.Email,
-                                Titulo = projeto.Titulo,
+                                Nome = cliente!.Nome!,
+                                Email = cliente!.Email!,
+                                Titulo = projeto!.Titulo!,
                                 ID_Projeto = projeto.Id,
-                                DS_Projeto = projeto.Descricao,
+                                DS_Projeto = projeto!.Descricao!,
                                 Status = projeto.Status.ToString()
                             }).ToList();
             //var consulta = contexto.Database.SqlQueryRaw<ClienteProjetoResponse>($"SELECT dbo.TB_Clientes.ID_Cliente, dbo.TB_Clientes.Nome, dbo.TB_Clientes.Email, dbo.TB_Projetos.Titulo,dbo.TB_Projetos.ID_Projeto, dbo.TB_Projetos.DS_Projeto, dbo.TB_Projetos.Status FROM dbo.TB_Clientes INNER JOIN dbo.TB_Projetos ON dbo.TB_Clientes.ID_Cliente = dbo.TB_Projetos.ID_Cliente WHERE dbo.TB_Clientes.Nome like '%{nomeCliente}%'").ToList();

@@ -1,6 +1,9 @@
 using Freelando.Api.Converters;
 using Freelando.Api.Endpoints;
 using Freelando.Dados;
+using Freelando.Dados.Repository;
+using Freelando.Dados.Repository.Interfaces;
+using Freelando.Dados.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +19,13 @@ builder.Services.AddDbContext<FreelandoContext>((options) =>
 });
 
 builder.Services.AddTransient<FreelandoContext>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ICandidaturaRepository, CandidaturaRepository>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IEspecialidadeRepository, EspecialidadeRepository>();
+builder.Services.AddScoped<IProfissionalRepository, ProfissionalRepository>();
+builder.Services.AddScoped<IProjetoRepository, ProjetoRepository>();
+builder.Services.AddScoped<IServicoRepository, ServicoRepository>();
 builder.Services.AddTransient(typeof(CandidaturaConverter));
 builder.Services.AddTransient(typeof(ClienteConverter));
 builder.Services.AddTransient(typeof(ContratoConverter));

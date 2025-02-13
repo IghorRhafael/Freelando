@@ -1,9 +1,8 @@
 ﻿using Freelando.Api.Converters;
 using Freelando.Api.Helpers;
 using Freelando.Api.Requests;
-using Freelando.Dados;
+using Freelando.Dados.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Freelando.Api.Endpoints;
 
@@ -12,16 +11,16 @@ public static class ServicoExtensions
     public static void AddEndPointServicos(this WebApplication app)
     {
         //Retorna lista de servicos
-        app.MapGet("/servicos", async ([FromServices] ServicoConverter converter, [FromServices] FreelandoContext contexto) =>
+        app.MapGet("/servicos", async ([FromServices] ServicoConverter converter, [FromServices] IUnitOfWork unitOfWork) =>
         {
-            var servico = converter.EntityListToResponseList(contexto.Servicos.ToList());
+            var servico = converter.EntityListToResponseList(await unitOfWork.ServicoRepository.GetAll());
             return Results.Ok(await Task.FromResult(servico));
         }).WithTags("Servicos").WithOpenApi();
 
         //retorna servico por id
-        app.MapGet("/servico/{id}", async ([FromServices] ServicoConverter converter, [FromServices] FreelandoContext contexto, Guid id) =>
+        app.MapGet("/servico/{id}", async ([FromServices] ServicoConverter converter, [FromServices] IUnitOfWork unitOfWork, Guid id) =>
         {
-            var servico = await contexto.Servicos.FindAsync(id);
+            var servico = await unitOfWork.ServicoRepository.GetById(s => s.Id == id);
             if (servico is null)
             {
                 return Results.NotFound();
@@ -30,18 +29,20 @@ public static class ServicoExtensions
         }).WithTags("Servicos").WithOpenApi();
 
         //Cria um servico
-        app.MapPost("/servico", async ([FromServices] ServicoConverter converter, [FromServices] FreelandoContext contexto, ServicoRequest servicoRequest) =>
+        app.MapPost("/servico", async ([FromServices] ServicoConverter converter, [FromServices] IUnitOfWork unitOfWork, ServicoRequest servicoRequest) =>
         {
             var servico = converter.RequestToEntity(servicoRequest);
-            await contexto.Servicos.AddAsync(servico);
-            await contexto.SaveChangesAsync();
+            
+            await unitOfWork.ServicoRepository.Add(servico);
+            await unitOfWork.Commit();
+
             return Results.Created($"/servico/{servico.Id}", servico);
         }).WithTags("Servicos").WithOpenApi();
 
         //Atualiza um servico
-        app.MapPut("/servico/{id}", async ([FromServices] ServicoConverter converter, [FromServices] FreelandoContext contexto, Guid id, ServicoRequest servicoRequest) =>
+        app.MapPut("/servico/{id}", async ([FromServices] ServicoConverter converter, [FromServices] IUnitOfWork unitOfWork, Guid id, ServicoRequest servicoRequest) =>
         {
-            var servico = await contexto.Servicos.FindAsync(id);
+            var servico = await unitOfWork.ServicoRepository.GetById(s => s.Id == id);
             if (servico is null)
             {
                 return Results.NotFound();
@@ -52,20 +53,24 @@ public static class ServicoExtensions
             servico.Descricao = Helper.GetValue(servico.Descricao, servicoAtualizado.Descricao);
             servico.Status = servicoAtualizado.Status;
             
-            await contexto.SaveChangesAsync();
+            await unitOfWork.ServicoRepository.Update(servico);
+            await unitOfWork.Commit();
+
             return Results.Ok(servico);
         }).WithTags("Servicos").WithOpenApi();
 
         //Delete um servico
-        app.MapDelete("/servico/{id}", async ([FromServices] FreelandoContext contexto, Guid id) =>
+        app.MapDelete("/servico/{id}", async ([FromServices] IUnitOfWork unitOfWork, Guid id) =>
         {
-            var servico = await contexto.Servicos.FindAsync(id);
+            var servico = await unitOfWork.ServicoRepository.GetById(s => s.Id == id);
             if (servico is null)
             {
                 return Results.NotFound();
             }
-            contexto.Servicos.Remove(servico);
-            await contexto.SaveChangesAsync();
+
+            await unitOfWork.ServicoRepository.Delete(servico);
+            await unitOfWork.Commit();
+
             return Results.NoContent();
         }).WithTags("Servicos").WithOpenApi();
     }
