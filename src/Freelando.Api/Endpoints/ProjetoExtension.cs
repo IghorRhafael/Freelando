@@ -4,6 +4,7 @@ using Freelando.Api.Requests;
 using Freelando.Dados;
 using Freelando.Dados.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Freelando.Api.Endpoints;
@@ -80,6 +81,25 @@ public static class ProjetoExtension
             await unitOfWork.Commit();
 
             return Results.NoContent();
+        }).WithTags("Projeto").WithOpenApi();
+
+        app.MapPost("/projetos-proposta", async ([FromServices] ProjetoConverter converter, [FromServices] IUnitOfWork unitOfWork, Proposta proposta) =>
+        {
+            var idProposta = Guid.NewGuid();
+
+            string sql = "EXEC dbo.sp_InserirProposta @Id_Proposta,  @Id_Projeto,  @Id_Profissional,  @Valor_Proposta,  @Prazo_Entrega,  @Mensagem";
+
+            object[] parametros = new object[] {
+                new SqlParameter("@Id_Proposta", idProposta),
+                new SqlParameter("@Id_Projeto", proposta.ProjetoId),
+                new SqlParameter("@Id_Profissional", proposta.ProfissionalId),
+                new SqlParameter("@Valor_Proposta", proposta.ValorProposta),
+                new SqlParameter("@Prazo_Entrega", proposta.PrazoEntrega),
+                new SqlParameter("@Mensagem", proposta.Mensagem ?? (object)DBNull.Value)
+            };
+
+            await unitOfWork.contexto.Database.ExecuteSqlRawAsync(sql, parametros);
+
         }).WithTags("Projeto").WithOpenApi();
     }
 }
