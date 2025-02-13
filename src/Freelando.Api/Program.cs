@@ -60,6 +60,7 @@ app.AddEndPointProfissionais();
 app.AddEndPointProjetos();
 app.AddEndPointServicos();
 app.AddEndPointRelatorios();
+app.AddEndPointPropostas();
 app.UseHttpsRedirection();
 
 app.Run();

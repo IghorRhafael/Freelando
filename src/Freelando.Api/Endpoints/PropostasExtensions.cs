@@ -34,7 +34,6 @@ public static class PropostasExtensions
 
         }).WithTags("Propostas").WithOpenApi();
 
-        //Faz insert apartir de um arquivo json com lista de proposta
         app.MapPost("/propostas/upload", async ([FromForm] IFormFile file, [FromServices] IUnitOfWork unitOfOrk) =>
         {
             if(file == null || file.Length ==0) {
@@ -48,13 +47,61 @@ public static class PropostasExtensions
                 var content = await stream.ReadToEndAsync();
                 propostas = JsonSerializer.Deserialize<List<Proposta>>(content);
             }
-
+          
             unitOfOrk.contexto.Propostas.AddRange(propostas);
             await unitOfOrk.contexto.SaveChangesAsync();
 
             return Results.Ok(propostas);
 
         }).WithTags("Propostas").Accepts<IFormFile>("multipart/form-data").DisableAntiforgery();
+
+        app.MapPut("/propostas/upload/update", async ([FromForm] IFormFile file, [FromServices] IUnitOfWork unitOfOrk) =>
+        {
+            if (file == null || file.Length == 0)
+            {
+                return Results.BadRequest("Arquivo não encontrado.");
+            }
+
+            var profissionaisId = new List<Guid>();
+
+            using (var stream = new StreamReader(file.OpenReadStream()))
+            {
+                var content = await stream.ReadToEndAsync();
+                profissionaisId = JsonSerializer.Deserialize<List<Guid>>(content);
+            }
+
+            unitOfOrk.contexto.Propostas.Where(p => profissionaisId.Contains(p.Id)).
+            ExecuteUpdate(p => p.SetProperty(p => p.ValorProposta, p => p.ValorProposta + p.ValorProposta * 0.3m));
+
+            await unitOfOrk.contexto.SaveChangesAsync();
+
+            return Results.Ok("Propostas atualizadas!");
+
+        }).WithTags("Propostas").Accepts<IFormFile>("multipart/form-data").DisableAntiforgery();
+
+        app.MapDelete("/propostas/upload/delete", async ([FromForm] IFormFile file, [FromServices] IUnitOfWork unitOfOrk) =>
+        {
+            if (file == null || file.Length == 0)
+            {
+                return Results.BadRequest("Arquivo não encontrado.");
+            }
+
+            var propostasId = new List<Guid>();
+
+            using (var stream = new StreamReader(file.OpenReadStream()))
+            {
+                var content = await stream.ReadToEndAsync();
+                propostasId = JsonSerializer.Deserialize<List<Guid>>(content);
+            }
+
+            unitOfOrk.contexto.Propostas.Where(p => propostasId.Contains(p.Id)).ExecuteDelete();
+
+            await unitOfOrk.contexto.SaveChangesAsync();
+
+            return Results.Ok("Propostas removidas!");
+
+        }).WithTags("Propostas").Accepts<IFormFile>("multipart/form-data").DisableAntiforgery();
+
     }
 }
 
