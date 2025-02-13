@@ -1,10 +1,12 @@
 ﻿using Freelando.Api.Converters;
 using Freelando.Api.Helpers;
 using Freelando.Api.Requests;
+using Freelando.Api.Responses;
 using Freelando.Dados;
 using Freelando.Dados.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Freelando.Api.Endpoints;
 
@@ -12,12 +14,20 @@ public static class ClienteExtension
 {
     public static void AddEndPointClientes(this WebApplication app)
     {
+        const string chaveCache = "clientes";
+
         //Retorna lista de clientes
-        app.MapGet("/clientes", async ([FromServices] ClienteConverter converter, [FromServices] IUnitOfWork unitOfWork) =>
+        app.MapGet("/clientes", async ([FromServices] ClienteConverter converter, [FromServices] IUnitOfWork unitOfWork, IMemoryCache cache) =>
         {
-            var clientes = converter.EntityListToResponseList(await unitOfWork.ClienteRepository.GetAll());
-            
-            return Results.Ok(await Task.FromResult(clientes));
+            if (!cache.TryGetValue(chaveCache, out ICollection<ClienteResponse> clientesCache))
+            {
+                clientesCache = converter.EntityListToResponseList(await unitOfWork.ClienteRepository.GetAll());
+                cache.Set(chaveCache, clientesCache, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5)));
+            }
+
+            return Results.Ok(await Task.FromResult(clientesCache));
+
+
         }).WithTags("Cliente").WithOpenApi();
 
         app.MapGet("/clientes/IdentificadorNome", async ([FromServices] ClienteConverter converter, [FromServices] IUnitOfWork unitOfWork) =>

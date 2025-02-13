@@ -18,6 +18,8 @@ builder.Services.AddDbContext<FreelandoContext>((options) =>
     options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]);
 });
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddTransient<FreelandoContext>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICandidaturaRepository, CandidaturaRepository>();
